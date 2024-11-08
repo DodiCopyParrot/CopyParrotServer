@@ -1,0 +1,16 @@
+
+netty:
+  resolver:
+    dns:
+      macos:
+        native: false
+
+
+spring:
+  r2dbc:
+    url: r2dbc:mysql://semtle.catholic.ac.kr:3306/parrot_db
+    username: parrot
+    password: parrot4641!
+  logging:
+    level:
+      org.springframework.r2dbc.core: debug
