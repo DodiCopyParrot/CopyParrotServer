@@ -10,4 +10,6 @@ interface InfluencerService {
     fun generateInfluencer(createInfluencerReq: CreateInfluencerReq) : Mono<CreateInfluencerRes>
 
     fun getInfluencers() : Mono<List<InfluencerDto>>
+
+    fun getInfluencer(voiceId: Long): Mono<InfluencerDto>
 }

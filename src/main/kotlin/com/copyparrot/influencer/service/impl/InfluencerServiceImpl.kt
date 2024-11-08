@@ -55,11 +55,25 @@ class InfluencerServiceImpl (
                     context = existingInfluencer.context,
                     image = existingInfluencer.image,
                     name = existingInfluencer.name,
-                    voiceFile = existingInfluencer.voiceFile
+                    voiceFile = existingInfluencer.voiceFile,
+                    json = existingInfluencer.json
                 )
             }.collectList()
     }
 
+    override fun getInfluencer(voiceId: Long): Mono<InfluencerDto> {
+        return influencerRepository.findById(voiceId)
+            .map { existingInfluencer ->
+                InfluencerDto(
+                    voiceId = existingInfluencer.id!!,
+                    context = existingInfluencer.context,
+                    image = existingInfluencer.image,
+                    name = existingInfluencer.name,
+                    voiceFile = existingInfluencer.voiceFile,
+                    json = existingInfluencer.json
+                )
+            }
+    }
 
 
 }

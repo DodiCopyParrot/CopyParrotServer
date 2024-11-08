@@ -34,4 +34,5 @@ class InfluencerDto (
     val image: String?,
     val name: String,
     var voiceFile: String?,
+    val json: String
 )
