@@ -20,7 +20,12 @@ class ShadowingController (
 
     @PostMapping(value = [""], produces = [MediaType.TEXT_EVENT_STREAM_VALUE])
     fun shadowing(@RequestBody shadowingReq: ShadowingReq) : Flux<ShadowingRes> {
+        var lastTranslatedText: String? = null
+
         return shadowingService.translateStream(shadowingReq.koText)
+            .doOnNext { translatedText ->
+                lastTranslatedText = translatedText  // 각 번역 부분을 받을 때마다 변수에 저장
+            }
             .map { translatedText ->
                 ShadowingRes(
                     enText = translatedText,
@@ -31,7 +36,7 @@ class ShadowingController (
                 shadowingService.generateVoiceFile(shadowingReq.koText)  // Generate the voice file after translation
                     .map { voiceFile ->
                         ShadowingRes(
-                            enText = null,  // No more translation text
+                            enText = lastTranslatedText,  // No more translation text
                             voiceFile = voiceFile  // Set the generated voice file
                         )
                     }
