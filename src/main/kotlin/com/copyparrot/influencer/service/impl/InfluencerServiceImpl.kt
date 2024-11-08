@@ -12,11 +12,7 @@ import reactor.core.publisher.Mono
 
 @Service
 class InfluencerServiceImpl (
-    val amazonS3: AmazonS3,
-    @Value("\${s3.bucketName}")
-    val bucketName: String,
-    @Value("\${bucket.path.image}")
-    val bucketPath: String,
+
     private val influencerRepository: InfluencerRepository
 ) : InfluencerService {
 

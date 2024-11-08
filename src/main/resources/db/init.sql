@@ -17,3 +17,16 @@ primary key (id)
 );
 
 drop table Influencer;
+
+
+CREATE TABLE IF NOT EXISTS mark(
+`id` bigint not null auto_increment,
+`uuid` varchar(255) not null,
+`file` text null,
+`ko_text` varchar(255) not null,
+`en_text` text null,
+`is_save` boolean,
+primary key (id)
+);
+
+drop table mark;

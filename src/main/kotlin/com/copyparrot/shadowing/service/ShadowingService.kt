@@ -1,11 +1,21 @@
 package com.copyparrot.shadowing.service
 
 import com.copyparrot.shadowing.dto.GenerateVoice
+import com.copyparrot.shadowing.dto.ShadowingReq
+import com.copyparrot.shadowing.entity.Mark
 import org.springframework.core.io.buffer.DataBuffer
 import reactor.core.publisher.Flux
+import reactor.core.publisher.Mono
 
 interface ShadowingService {
-    fun translateStream(text: String): Flux<String>
+
+    fun saveMark(shadowingReq: ShadowingReq): Mono<Mark>
+
+    fun updatedMark(markId: Long, enText: String, fileName: String) : Mono<Void>
+
+    fun translateStream(shadowingReq: ShadowingReq): Flux<String>
 
     fun generateVoiceFile(generateVoice: GenerateVoice, json: String): Flux<DataBuffer>
+
+    fun uploadToS3(fileName: String, dataBuffers: List<DataBuffer>): Mono<String>
 }
