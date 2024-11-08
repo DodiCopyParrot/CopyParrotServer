@@ -8,4 +8,6 @@ import reactor.core.publisher.Mono
 @Repository
 interface InfluencerRepository : ReactiveCrudRepository<Influencer, Long> {
     fun findByName(name: String) : Mono<Influencer>
+
+    fun findVoiceFilePathById(voiceId: Long): Mono<String>
 }

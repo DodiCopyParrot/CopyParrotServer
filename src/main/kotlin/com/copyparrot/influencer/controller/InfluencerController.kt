@@ -7,7 +7,10 @@ import com.copyparrot.influencer.dto.InfluencerDto
 import com.copyparrot.influencer.service.InfluencerService
 import com.fasterxml.jackson.databind.ser.Serializers.Base
 import jakarta.validation.Valid
+import org.springframework.http.MediaType
+import org.springframework.http.server.reactive.ServerHttpResponse
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
@@ -33,6 +36,11 @@ class InfluencerController (
             .map { influencerDto ->
                 BaseResponse(data = influencerDto)
             }
+    }
+
+    @GetMapping("/{voiceId}", produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
+    fun listenInfluencerVoice(@PathVariable(name = "voiceId") voiceId: Long, response: ServerHttpResponse) {
+
     }
 
 }

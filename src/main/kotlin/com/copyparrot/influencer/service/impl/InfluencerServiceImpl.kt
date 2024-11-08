@@ -1,16 +1,22 @@
 package com.copyparrot.influencer.service.impl
 
+import com.amazonaws.services.s3.AmazonS3
 import com.copyparrot.influencer.dto.CreateInfluencerReq
 import com.copyparrot.influencer.dto.CreateInfluencerRes
 import com.copyparrot.influencer.dto.InfluencerDto
 import com.copyparrot.influencer.repository.InfluencerRepository
 import com.copyparrot.influencer.service.InfluencerService
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
-import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 
 @Service
 class InfluencerServiceImpl (
+    val amazonS3: AmazonS3,
+    @Value("\${s3.bucketName}")
+    val bucketName: String,
+    @Value("\${bucket.path.image}")
+    val bucketPath: String,
     private val influencerRepository: InfluencerRepository
 ) : InfluencerService {
 
@@ -53,5 +59,7 @@ class InfluencerServiceImpl (
                 )
             }.collectList()
     }
+
+
 
 }

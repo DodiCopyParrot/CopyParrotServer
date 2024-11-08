@@ -12,8 +12,8 @@ COPY build/libs/*.jar app.jar
 ENTRYPOINT ["java", "-jar", "app.jar"]
 
 
-## docker build --platform linux/amd64 -t parrot-api:0.0.2 .
-## docker run -d -p 8087:8080 parrot-api:0.0.2
+## docker build --platform linux/amd64 -t parrot-api:0.0.6 .
+## docker run -d -p 8087:8080 parrot-api:0.0.6
 
 
 

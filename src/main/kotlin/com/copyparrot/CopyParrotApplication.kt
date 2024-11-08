@@ -9,8 +9,8 @@ import org.springframework.boot.runApplication
 @EnableConfigurationProperties(S3Properties::class)
 //@ComponentScan(basePackages = ["com.product.*"])
 //@EnableR2dbcRepositories(basePackages = ["com.product.*"])
-class ProductManagementSystemApplication
+class CopyParrotApplication
 
 fun main(args: Array<String>) {
-    runApplication<ProductManagementSystemApplication>(*args)
+    runApplication<CopyParrotApplication>(*args)
 }
