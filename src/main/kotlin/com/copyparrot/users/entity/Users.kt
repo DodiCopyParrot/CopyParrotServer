@@ -9,8 +9,6 @@ class Users (
 
     val uuid: String,
 
-    val name: String?,
-
     @Column("created_date")
     val createdDate: String
 ) {

@@ -40,9 +40,14 @@ dependencies {
 
     implementation("org.flywaydb:flyway-core:9.22.0")
 
+    // aws
+    implementation("com.amazonaws:aws-java-sdk:1.11.354")
+
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+
+
 }
 
 kotlin {

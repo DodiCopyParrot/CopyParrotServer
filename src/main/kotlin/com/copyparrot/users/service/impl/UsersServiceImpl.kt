@@ -23,7 +23,6 @@ class UsersServiceImpl (
             .flatMap { existingUser ->
                 Mono.just(OnboardingUserRes(
                     id = existingUser.uuid,
-                    name = existingUser.name,
                     createdDate = existingUser.createdDate
                 ))
             }
@@ -33,7 +32,6 @@ class UsersServiceImpl (
                     .map { savedUser ->
                         OnboardingUserRes(
                             id = savedUser.uuid,
-                            name = savedUser.name,
                             createdDate = savedUser.createdDate
                         )
                     }
