@@ -1,6 +1,7 @@
 package com.copyparrot.shadowing.service.impl
 
 import com.amazonaws.services.s3.AmazonS3
+import com.amazonaws.services.s3.model.GetObjectRequest
 import com.amazonaws.services.s3.model.ObjectMetadata
 import com.copyparrot.common.exception.CustomException
 import com.copyparrot.common.status.ResultCode
@@ -10,14 +11,20 @@ import com.copyparrot.shadowing.entity.Mark
 import com.copyparrot.shadowing.repository.MarkRepository
 import com.copyparrot.shadowing.service.ShadowingService
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.core.io.ByteArrayResource
+import org.springframework.core.io.InputStreamResource
 import org.springframework.core.io.buffer.DataBuffer
+import org.springframework.core.io.buffer.DefaultDataBufferFactory
+import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
+import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.client.WebClient
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
+import java.io.InputStream
 import java.time.Duration
 
 @Service
@@ -42,7 +49,7 @@ class ShadowingServiceImpl (
         ))
     }
 
-    override fun updatedMark(markId: Long, enText: String, fileName: String) : Mono<Void> {
+    override fun updatedMark(markId: Long, enText: String, fileName: String): Mono<Void> {
         return markRepository.findById(markId)
             .flatMap { existingMark ->
                 val updatedMark = existingMark.updateMark(enText, fileName)
@@ -103,6 +110,31 @@ class ShadowingServiceImpl (
             amazonS3.putObject(bucketName + bucketPath, fileName, byteArrayInputStream, metadata)
             amazonS3.getUrl(bucketName + bucketPath, fileName).toString()  // 업로드된 파일의 URL 반환
         }
+    }
+
+    override fun streamS3File(fileName: String): Mono<ResponseEntity<ByteArrayResource>> {
+        // S3 객체 가져오기
+        val s3Object = amazonS3.getObject(GetObjectRequest(bucketName + bucketPath, fileName))
+        val s3InputStream: InputStream = s3Object.objectContent
+
+        // InputStream에서 전체 데이터를 ByteArray로 읽기
+        val byteArrayOutputStream = ByteArrayOutputStream()
+        s3InputStream.use { input ->
+            val buffer = ByteArray(8192)  // 8KB 버퍼 크기
+            var bytesRead: Int
+            while (input.read(buffer).also { bytesRead = it } != -1) {
+                byteArrayOutputStream.write(buffer, 0, bytesRead)
+            }
+        }
+        val byteArray = byteArrayOutputStream.toByteArray()
+
+        // ByteArray를 ByteArrayResource로 변환하여 ResponseEntity로 반환
+        val resource = ByteArrayResource(byteArray)
+        return Mono.just(ResponseEntity.ok()
+            .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"$fileName\"")
+            .contentType(MediaType.parseMediaType("audio/mpeg"))
+            .contentLength(byteArray.size.toLong())
+            .body(resource))
     }
 
 }

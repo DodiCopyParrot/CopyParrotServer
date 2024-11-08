@@ -5,13 +5,17 @@ import com.copyparrot.shadowing.dto.GenerateVoice
 import com.copyparrot.shadowing.dto.ShadowingReq
 import com.copyparrot.shadowing.dto.ShadowingRes
 import com.copyparrot.shadowing.service.ShadowingService
+import org.springframework.core.io.ByteArrayResource
+import org.springframework.core.io.InputStreamResource
 import org.springframework.core.io.buffer.DataBuffer
 import org.springframework.http.MediaType
+import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import reactor.core.publisher.Flux
+import reactor.core.publisher.Mono
 import java.util.*
 
 
@@ -38,28 +42,29 @@ class ShadowingController (
     }
 
     @PostMapping(value = ["/generate-voice"], produces = ["audio/mpeg"])
-    fun generateVoice(@RequestBody generateVoice: GenerateVoice): Flux<DataBuffer> {
-        //인플루언서 조회 -> ai.play.ht 의 json파일을 가져오기 위해
+    fun generateVoice(@RequestBody generateVoice: GenerateVoice): Mono<ResponseEntity<ByteArrayResource>> {
         val influencerMono = influencerService.getInfluencer(generateVoice.voiceId)
 
+        return influencerMono.flatMap { influencer ->
+            // generateVoiceFile 결과를 Flux<DataBuffer>로 가져옴
+            shadowingService.generateVoiceFile(generateVoice, influencer.json)
+                .collectList()
+                .flatMap { dataBuffers ->
+                    // 고유 파일 이름 생성
+                    val uniqueFileName = "voice_${UUID.randomUUID()}.mp3"
 
-        return influencerMono.flatMapMany { influencer ->
-            // generateVoiceFile 결과를 변수에 저장
-            val dataBufferFlux = shadowingService.generateVoiceFile(generateVoice, influencer.json).cache()
-
-            // 클라이언트로 데이터 스트리밍
-            dataBufferFlux.doOnTerminate {
-                val uniqueFileName = "voice_${UUID.randomUUID()}.mp3"
-
-                // 스트리밍이 완료된 후 S3 업로드와 DB 업데이트 비동기 실행
-                dataBufferFlux.collectList()  // S3 업로드 시 전체를 모아야 하므로 collectList() 사용
-                    .flatMap { dataBuffers ->
-                        shadowingService.uploadToS3(uniqueFileName, dataBuffers)
-                            .flatMap { s3Url ->
-                                shadowingService.updatedMark(generateVoice.markId, generateVoice.enText, uniqueFileName)
-                            }
-                    }.subscribe()
-            }
+                    // 파일을 S3에 업로드한 후 S3 URL 리턴
+                    shadowingService.uploadToS3(uniqueFileName, dataBuffers)
+                        .flatMap { s3Url ->
+                            // 데이터베이스 업데이트 후 uniqueFileName 리턴
+                            shadowingService.updatedMark(generateVoice.markId, generateVoice.enText, uniqueFileName)
+                                .thenReturn(uniqueFileName)  // 업데이트 완료 후 파일 이름 반환
+                        }
+                }
+                .flatMap { fileName ->
+                    // 업로드 및 데이터베이스 업데이트 후 streamS3File 호출
+                    shadowingService.streamS3File(fileName)
+                }
         }
     }
 }
