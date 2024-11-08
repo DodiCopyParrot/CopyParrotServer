@@ -1,7 +1,6 @@
 package com.copyparrot.products.service.impl
 
 
-import com.copyparrot.products.operation.ProductsOperation
 import com.copyparrot.products.repository.ProductsHistoryRepository
 import com.copyparrot.products.repository.ProductsRepository
 import com.copyparrot.products.service.ProductsHistoryService
@@ -12,7 +11,6 @@ import org.springframework.stereotype.Service
 class ProductsHistoryServiceImpl (
     val productsRepository: ProductsRepository,
     val productsHistoryRepository: ProductsHistoryRepository,
-    val productsOperation: ProductsOperation,
     val reactiveRedisTemplate: ReactiveRedisTemplate<String, String>
 ) : ProductsHistoryService {
 
