@@ -13,6 +13,7 @@ drop table users;
 CREATE TABLE IF NOT EXISTS influencer(
                                          `id` bigint not null auto_increment,
                                          `name` varchar(255) not null,
+                                         `ko_name` varchar(255) not null,
                                          `image` text null,
                                          `context` varchar(255) not null,
                                          `voice_file` text null default null,
@@ -20,8 +21,8 @@ CREATE TABLE IF NOT EXISTS influencer(
                                          primary key (id)
 );
 
-INSERT INTO parrot_db.influencer (id, name, image, context, voice_file, json) VALUES (1, 'Barack Obama', 'hhttps://api.dopaminedefense.team/file/image/a100fb2b-1cb4-4542-81d6-b0e3d54f91ab_Obama.jpg', '따뜻하고 설득력 있는 어조', null, 's3://voice-cloning-zero-shot/65a562d0-a0f4-4dcd-9542-f371316fb8b8/original/manifest.json');
-INSERT INTO parrot_db.influencer (id, name, image, context, voice_file, json) VALUES (2, 'Elon Musk', 'https://api.dopaminedefense.team/file/image/45c1a054-ccc6-46d8-b56c-1b21ae270716_ElonMusk.png', '남아공 출신 특유의 억양 도전적이며 논리적', 'ElonMusk.mp3', 's3://voice-cloning-zero-shot/65a562d0-a0f4-4dcd-9542-f371316fb8b8/original/manifest.json');
+INSERT INTO influencer (id, name, image, context, voice_file, json) VALUES (1, 'Barack Obama', 'hhttps://api.dopaminedefense.team/file/image/a100fb2b-1cb4-4542-81d6-b0e3d54f91ab_Obama.jpg', '따뜻하고 설득력 있는 어조', null, 's3://voice-cloning-zero-shot/65a562d0-a0f4-4dcd-9542-f371316fb8b8/original/manifest.json');
+INSERT INTO influencer (id, name, image, context, voice_file, json) VALUES (2, 'Elon Musk', 'https://api.dopaminedefense.team/file/image/45c1a054-ccc6-46d8-b56c-1b21ae270716_ElonMusk.png', '남아공 출신 특유의 억양 도전적이며 논리적', 'ElonMusk.mp3', 's3://voice-cloning-zero-shot/d4f05e4e-9182-41aa-a0b5-cd4234a54543/original/manifest.json');
 
 
 
