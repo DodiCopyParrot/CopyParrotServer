@@ -8,7 +8,8 @@ class ShadowingReq (
 
 class ShadowingRes (
     val markId: Long,
-    val enText: String?
+    val enText: String?,
+    val end: Boolean
 )
 
 class GenerateVoice (
@@ -17,4 +18,22 @@ class GenerateVoice (
     val enText: String
 )
 
+class RecordVoice (
+    val markId: Long
+)
+
+class MarkDto (
+    val id: Long,
+    val uuid: String,
+    val file: String? = null,
+    val koText: String,
+    val enText: String?,
+    val name: String?,
+    val image: String?,
+    val createdDate: String
+)
+
+class ListenVoice (
+    val file: String
+)
 

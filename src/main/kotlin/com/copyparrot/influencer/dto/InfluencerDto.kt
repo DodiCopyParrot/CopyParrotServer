@@ -28,6 +28,11 @@ class CreateInfluencerRes (
     val json: String
 )
 
+class UpdateInfluencerReq (
+    val uuid: String,
+    val influencerId: Long
+)
+
 class InfluencerDto (
     val voiceId: Long,
     val context: String,
@@ -36,3 +41,10 @@ class InfluencerDto (
     var voiceFile: String?,
     val json: String
 )
+
+class HomeDto (
+    val message: String,
+    val detailedMessage: String,
+    val influencer: InfluencerDto,
+)
+

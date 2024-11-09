@@ -4,6 +4,7 @@ import com.amazonaws.services.s3.AmazonS3
 import com.copyparrot.influencer.dto.CreateInfluencerReq
 import com.copyparrot.influencer.dto.CreateInfluencerRes
 import com.copyparrot.influencer.dto.InfluencerDto
+import com.copyparrot.influencer.dto.UpdateInfluencerReq
 import com.copyparrot.influencer.repository.InfluencerRepository
 import com.copyparrot.influencer.service.InfluencerService
 import org.springframework.beans.factory.annotation.Value
@@ -70,6 +71,8 @@ class InfluencerServiceImpl (
                 )
             }
     }
+
+
 
 
 }

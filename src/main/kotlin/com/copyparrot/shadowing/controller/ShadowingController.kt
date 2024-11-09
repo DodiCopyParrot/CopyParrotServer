@@ -1,19 +1,14 @@
 package com.copyparrot.shadowing.controller
 
+import com.copyparrot.common.response.BaseResponse
 import com.copyparrot.influencer.service.InfluencerService
-import com.copyparrot.shadowing.dto.GenerateVoice
-import com.copyparrot.shadowing.dto.ShadowingReq
-import com.copyparrot.shadowing.dto.ShadowingRes
+import com.copyparrot.shadowing.dto.*
+import com.copyparrot.shadowing.entity.Mark
 import com.copyparrot.shadowing.service.ShadowingService
 import org.springframework.core.io.ByteArrayResource
-import org.springframework.core.io.InputStreamResource
-import org.springframework.core.io.buffer.DataBuffer
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import java.util.*
@@ -28,43 +23,69 @@ class ShadowingController (
 
     @PostMapping(value = [""], produces = [MediaType.TEXT_EVENT_STREAM_VALUE])
     fun shadowing(@RequestBody shadowingReq: ShadowingReq) : Flux<ShadowingRes> {
+        var lastTranslatedText: String? = null
+
         return shadowingService.saveMark(shadowingReq)
             //Mark를 저장 후 Stream 조회
             .flatMapMany { savedMark ->
                 shadowingService.translateStream(shadowingReq)
+                    .doOnNext { translatedText ->
+                        lastTranslatedText = translatedText  // 각 번역 부분을 받을 때마다 변수에 저장
+                    }
                     .map { translatedText ->
+                        lastTranslatedText = translatedText
                         ShadowingRes(
                             markId = savedMark.id!!,
-                            enText = translatedText
+                            enText = translatedText,
+                            end = false
                         )
                     }
+                    .concatWith(Flux.just(ShadowingRes(
+                        markId = savedMark.id!!,
+                        enText = "<END>",
+                        end = true
+                    )))
             }
     }
 
     @PostMapping(value = ["/generate-voice"], produces = ["audio/mpeg"])
-    fun generateVoice(@RequestBody generateVoice: GenerateVoice): Mono<ResponseEntity<ByteArrayResource>> {
-        val influencerMono = influencerService.getInfluencer(generateVoice.voiceId)
-
-        return influencerMono.flatMap { influencer ->
-            // generateVoiceFile 결과를 Flux<DataBuffer>로 가져옴
-            shadowingService.generateVoiceFile(generateVoice, influencer.json)
-                .collectList()
-                .flatMap { dataBuffers ->
-                    // 고유 파일 이름 생성
-                    val uniqueFileName = "voice_${UUID.randomUUID()}.mp3"
-
-                    // 파일을 S3에 업로드한 후 S3 URL 리턴
-                    shadowingService.uploadToS3(uniqueFileName, dataBuffers)
-                        .flatMap { s3Url ->
-                            // 데이터베이스 업데이트 후 uniqueFileName 리턴
-                            shadowingService.updatedMark(generateVoice.markId, generateVoice.enText, uniqueFileName)
-                                .thenReturn(uniqueFileName)  // 업데이트 완료 후 파일 이름 반환
-                        }
-                }
-                .flatMap { fileName ->
-                    // 업로드 및 데이터베이스 업데이트 후 streamS3File 호출
-                    shadowingService.streamS3File(fileName)
-                }
-        }
+    fun generateVoice(@RequestBody generateVoice: GenerateVoice) : Mono<ResponseEntity<ByteArrayResource>> {
+        return influencerService.getInfluencer(generateVoice.voiceId)
+            .switchIfEmpty(Mono.error(IllegalArgumentException("Influencer not found")))
+            .flatMap { influencer ->
+                shadowingService.generateVoiceFile(generateVoice, influencer.json)
+                    .collectList()
+                    .flatMap { dataBuffers ->
+                        val uniqueFileName = "voice_${UUID.randomUUID()}.mp3"
+                        shadowingService.uploadToS3(uniqueFileName, dataBuffers)
+                            .switchIfEmpty(Mono.error(IllegalArgumentException("Failed to upload file to S3")))
+                            .flatMap { s3Url ->
+                                shadowingService.updatedMark(generateVoice.markId, generateVoice.enText, uniqueFileName, influencer.voiceId)
+                                    .thenReturn(uniqueFileName)
+                            }
+                    }
+            }
+            .flatMap { fileName ->
+                shadowingService.streamS3File(fileName)
+            }
     }
+
+    @PostMapping("/record")
+    fun recordVoice(@RequestBody recordVoice: RecordVoice) : Mono<BaseResponse<Mark>> {
+        return shadowingService.voiceSave(recordVoice.markId)
+            .map { res -> BaseResponse(data = res) }
+    }
+
+    @GetMapping("/record")
+    fun getRecords(@RequestParam(name = "uuid") uuid: String) : Mono<BaseResponse<List<MarkDto>>> {
+        return shadowingService.getMarks(uuid)
+            .map { res -> BaseResponse(data = res) }
+    }
+
+    @PostMapping(value = ["/record/generate-voice"], produces = ["audio/mpeg"])
+    fun listenRecordedVoice(@RequestBody listenVoice: ListenVoice) : Mono<ResponseEntity<ByteArrayResource>> {
+        return shadowingService.streamS3File(listenVoice.file)
+    }
+
+
 }
