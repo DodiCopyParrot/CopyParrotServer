@@ -10,7 +10,7 @@ import reactor.core.publisher.Flux
 @Repository
 interface MarkRepository : ReactiveCrudRepository<Mark, Long> {
     @Query("""
-        SELECT mark.id, mark.uuid, mark.file, mark.ko_text, mark.en_text, i.name, i.image, mark.created_date
+        SELECT mark.id, mark.uuid, mark.file, mark.ko_text, mark.en_text, i.name, i.image, mark.created_date, i.id AS voice_id 
         FROM mark
         LEFT JOIN influencer i ON mark.influencer_id = i.id
         WHERE mark.uuid = :uuid AND mark.is_save = :isSave

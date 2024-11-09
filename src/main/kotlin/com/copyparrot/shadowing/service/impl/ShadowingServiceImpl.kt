@@ -223,7 +223,8 @@ class ShadowingServiceImpl (
                     enText = existingMark.enText,
                     name = existingMark.name,
                     image = existingMark.image,
-                    createdDate = existingMark.createdDate
+                    createdDate = existingMark.createdDate,
+                    voiceId = existingMark.voiceId
                 )
             }.collectList()
     }

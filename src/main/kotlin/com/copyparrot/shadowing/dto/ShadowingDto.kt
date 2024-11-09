@@ -1,5 +1,7 @@
 package com.copyparrot.shadowing.dto
 
+import org.springframework.data.relational.core.mapping.Column
+
 
 class ShadowingReq (
     val uuid: String,
@@ -30,7 +32,9 @@ class MarkDto (
     val enText: String?,
     val name: String?,
     val image: String?,
-    val createdDate: String
+    val createdDate: String,
+    @Column("voice_id")
+    val voiceId: Long
 )
 
 class ListenVoice (
