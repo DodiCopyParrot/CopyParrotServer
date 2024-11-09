@@ -3,12 +3,14 @@ package com.copyparrot.shadowing.service.impl
 import com.amazonaws.services.s3.AmazonS3
 import com.amazonaws.services.s3.model.GetObjectRequest
 import com.amazonaws.services.s3.model.ObjectMetadata
+import com.copyparrot.influencer.repository.InfluencerRepository
 import com.copyparrot.shadowing.dto.GenerateVoice
 import com.copyparrot.shadowing.dto.MarkDto
 import com.copyparrot.shadowing.dto.ShadowingReq
 import com.copyparrot.shadowing.entity.Mark
 import com.copyparrot.shadowing.repository.MarkRepository
 import com.copyparrot.shadowing.service.ShadowingService
+import com.copyparrot.users.repository.UsersRepository
 import com.copyparrot.util.TimeUtil.Companion.getCurrentTimeAsString
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
@@ -46,7 +48,9 @@ class ShadowingServiceImpl (
     @Value("\${openai.key}")
     val openaiKey: String,
     private val webClient: WebClient,
-    private val markRepository: MarkRepository
+    private val markRepository: MarkRepository,
+    val usersRepository: UsersRepository,
+    val influencerRepository: InfluencerRepository
 ) : ShadowingService {
 
     override fun saveMark(shadowingReq: ShadowingReq): Mono<Mark> {
@@ -67,6 +71,12 @@ class ShadowingServiceImpl (
 
 
     override fun translateStream(shadowingReq: ShadowingReq): Flux<String> {
+        usersRepository.findByUuid(shadowingReq.uuid)
+            .flatMap { existingUser ->
+                influencerRepository.findById(existingUser.influencer!!)
+                    .map { existingInfluencer -> Mono.just(existingInfluencer.name) }
+            }
+
         val requestBody = mapOf(
             "model" to "gpt-4",
             "messages" to listOf(

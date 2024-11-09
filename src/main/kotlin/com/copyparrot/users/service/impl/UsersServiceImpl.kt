@@ -53,6 +53,7 @@ class UsersServiceImpl (
                             context = existingInfluencer.context,
                             image = existingInfluencer.image,
                             name = existingInfluencer.name,
+                            koName = existingInfluencer.koName,
                             voiceFile = existingInfluencer.voiceFile,
                             json = existingInfluencer.json
                         )
@@ -82,6 +83,7 @@ class UsersServiceImpl (
                                         context = updateInfluencer.context,
                                         image = updateInfluencer.image,
                                         name = updateInfluencer.name,
+                                        koName = updateInfluencer.koName,
                                         voiceFile = updateInfluencer.voiceFile,
                                         json = updateInfluencer.json)))
 

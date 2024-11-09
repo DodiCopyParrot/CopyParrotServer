@@ -1,10 +1,12 @@
 package com.copyparrot.shadowing.controller
 
 import com.copyparrot.common.response.BaseResponse
+import com.copyparrot.influencer.repository.InfluencerRepository
 import com.copyparrot.influencer.service.InfluencerService
 import com.copyparrot.shadowing.dto.*
 import com.copyparrot.shadowing.entity.Mark
 import com.copyparrot.shadowing.service.ShadowingService
+import com.copyparrot.users.repository.UsersRepository
 import org.springframework.core.io.ByteArrayResource
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity

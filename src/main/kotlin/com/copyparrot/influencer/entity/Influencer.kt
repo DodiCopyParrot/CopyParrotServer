@@ -8,6 +8,8 @@ import org.springframework.data.relational.core.mapping.Table
 @Table("influencer")
 class Influencer (
     val name: String,
+    @Column("ko_name")
+    var koName: String,
     var image: String?,
     var context: String,
     @Column("voice_file")
@@ -19,6 +21,7 @@ class Influencer (
 
 
     fun updateInfluencerInfo(createInfluencerReq: CreateInfluencerReq) : Influencer {
+        this.koName = name
         this.image = createInfluencerReq.image
         this.context = createInfluencerReq.context
         this.voiceFile = createInfluencerReq.voiceFile

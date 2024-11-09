@@ -18,4 +18,3 @@ ENTRYPOINT ["java", "-Duser.timezone=${TZ}", "-jar", "app.jar"]
 
 
 
-

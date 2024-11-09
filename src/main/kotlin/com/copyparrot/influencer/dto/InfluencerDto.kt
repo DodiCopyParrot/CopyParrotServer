@@ -4,6 +4,7 @@ import com.copyparrot.influencer.entity.Influencer
 
 
 class CreateInfluencerReq (
+    val koName: String,
     val name: String,
     val image: String?,
     val context: String,
@@ -12,6 +13,7 @@ class CreateInfluencerReq (
 ) {
     fun toEntity() : Influencer {
         return Influencer(
+            koName = koName,
             name = name,
             image = image,
             context = context,
@@ -38,6 +40,7 @@ class InfluencerDto (
     val context: String,
     val image: String?,
     val name: String,
+    val koName: String,
     var voiceFile: String?,
     val json: String
 )
